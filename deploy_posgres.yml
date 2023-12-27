@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-posgres
+  namespace: default
+  labels: 
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     tier: dbd
+  template:
+    metadata:
+      name: posgres-cont
+      labels:
+       tier: dbd
+    spec: 
+      containers:
+       - envFrom:
+          - secretRef:
+              name: secret-posgres
+         name: postgres
+         image: postgres
+         imagePullPolicy: Always
+         resources: {}
+         ports:
+            - containerPort: 5432
+         volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata
+      volumes:
+      - name: pgdata
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+
